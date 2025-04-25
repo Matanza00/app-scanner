@@ -1,3 +1,4 @@
+
 import type { Config } from "tailwindcss";
 
 export default {
@@ -61,7 +62,23 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				// ZestLeads custom color palette
+				zest: {
+					"dark-canvas": "#0E1525",
+					"surface-secondary": "#1A2030",
+					"light-surface": "#F5F7FA",
+					"white-surface": "#FFFFFF",
+					"primary-accent": "#2FCAC1",
+					"accent-green": "#0DAB76",
+					"text-primary": "#212B36",
+					"text-secondary": "#637381",
+					"info": "#FFC107",
+					"error": "#FF5A5F",
 				}
+			},
+			backgroundImage: {
+				"gradient-callout": "linear-gradient(135deg, #1BB85F 0%, #2FCAC1 100%)",
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
@@ -69,27 +86,49 @@ export default {
 				sm: 'calc(var(--radius) - 4px)'
 			},
 			keyframes: {
-				'accordion-down': {
-					from: {
-						height: '0'
-					},
-					to: {
-						height: 'var(--radix-accordion-content-height)'
-					}
+				"accordion-down": {
+					from: { height: "0" },
+					to: { height: "var(--radix-accordion-content-height)" },
 				},
-				'accordion-up': {
-					from: {
-						height: 'var(--radix-accordion-content-height)'
-					},
-					to: {
-						height: '0'
-					}
-				}
+				"accordion-up": {
+					from: { height: "var(--radix-accordion-content-height)" },
+					to: { height: "0" },
+				},
+				"float": {
+					"0%, 100%": { transform: "translateY(0)" },
+					"50%": { transform: "translateY(-10px)" },
+				},
+				"pulse-subtle": {
+					"0%, 100%": { opacity: "1" },
+					"50%": { opacity: "0.8" },
+				},
+				"slide-in-right": {
+					"0%": { transform: "translateX(100%)" },
+					"100%": { transform: "translateX(0)" },
+				},
+				"slide-in-left": {
+					"0%": { transform: "translateX(-100%)" },
+					"100%": { transform: "translateX(0)" },
+				},
+				"slide-up": {
+					"0%": { transform: "translateY(20px)", opacity: "0" },
+					"100%": { transform: "translateY(0)", opacity: "1" },
+				},
+				"zoom-in": {
+					"0%": { transform: "scale(0.95)", opacity: "0" },
+					"100%": { transform: "scale(1)", opacity: "1" },
+				},
 			},
 			animation: {
-				'accordion-down': 'accordion-down 0.2s ease-out',
-				'accordion-up': 'accordion-up 0.2s ease-out'
-			}
+				"accordion-down": "accordion-down 0.2s ease-out",
+				"accordion-up": "accordion-up 0.2s ease-out",
+				"float": "float 6s ease-in-out infinite",
+				"pulse-subtle": "pulse-subtle 3s ease-in-out infinite",
+				"slide-in-right": "slide-in-right 0.5s ease-out",
+				"slide-in-left": "slide-in-left 0.5s ease-out",
+				"slide-up": "slide-up 0.5s ease-out",
+				"zoom-in": "zoom-in 0.5s ease-out",
+			},
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
