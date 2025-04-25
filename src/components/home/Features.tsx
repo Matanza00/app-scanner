@@ -8,7 +8,7 @@ const Features = () => {
     {
       icon: Users,
       title: 'High-Quality Motivated Leads',
-      description: 'Every lead is verified and qualified to ensure you're only paying for serious sellers ready to make a deal.',
+      description: 'Every lead is verified and qualified to ensure you\'re only paying for serious sellers ready to make a deal.',
       color: 'from-emerald-500 to-teal-400',
     },
     {
