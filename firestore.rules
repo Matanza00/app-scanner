@@ -1,0 +1,82 @@
+rules_version = '2';
+
+// RedForge Firestore Security Rules — the data-layer half of the trust model.
+//
+// Principles:
+//  * Every record is owned by exactly one user (ownerUid). Users only ever see
+//    or touch their own records.
+//  * The server (Firebase Admin SDK) bypasses these rules. Anything that must be
+//    TRUSTWORTHY — above all marking a target `verified`, or a verification
+//    `confirmed` — is therefore writable only by the server, never the client.
+//    A client that could set verified=true could skip ownership proof entirely.
+//  * The audit log is append-only: create, never update or delete.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function owns(data) {
+      return isSignedIn() && data.ownerUid == request.auth.uid;
+    }
+    // On update, the owner may not be reassigned.
+    function ownerUnchanged() {
+      return request.resource.data.ownerUid == resource.data.ownerUid;
+    }
+
+    // --- targets -----------------------------------------------------------
+    // Client may create a target, but only in the UNVERIFIED state, and may
+    // never change `verified` (only the server flips it after real proof).
+    match /targets/{targetId} {
+      allow read, delete: if owns(resource.data);
+      allow create: if owns(request.resource.data)
+                    && request.resource.data.verified == false;
+      allow update: if owns(resource.data)
+                    && ownerUnchanged()
+                    && request.resource.data.verified == resource.data.verified;
+    }
+
+    // --- ownership_verifications ------------------------------------------
+    // Client opens a verification in the 'pending' state; the server is what
+    // moves it to 'verified' / 'failed'. Client cannot self-confirm.
+    match /ownership_verifications/{verificationId} {
+      allow read, delete: if owns(resource.data);
+      allow create: if owns(request.resource.data)
+                    && request.resource.data.status == 'pending';
+      allow update: if owns(resource.data)
+                    && ownerUnchanged()
+                    && request.resource.data.status == resource.data.status;
+    }
+
+    // --- rules_of_engagement ----------------------------------------------
+    // The signed RoE is the user's own consent, so the owner may create it.
+    // It is immutable once written (re-scoping creates a new version).
+    match /rules_of_engagement/{roeId} {
+      allow read: if owns(resource.data);
+      allow create: if owns(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    // --- scans (placeholder for the scanning slice) -----------------------
+    // Clients may read their own scans; scans are created and advanced by the
+    // server only, so no client writes.
+    match /scans/{scanId} {
+      allow read: if owns(resource.data);
+      allow create, update, delete: if false;
+    }
+
+    // --- audit_log --------------------------------------------------------
+    // Append-only. Owner can read and create their own entries; never mutate.
+    // (Hardening target: move audit writes server-side only for tamper-proofing.)
+    match /audit_log/{entryId} {
+      allow read: if owns(resource.data);
+      allow create: if owns(request.resource.data);
+      allow update, delete: if false;
+    }
+
+    // Deny everything else by default.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
